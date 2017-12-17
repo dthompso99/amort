@@ -1,6 +1,6 @@
 <?php 
 class Amort {
-	private $_prin, $_rate, $_balloon=0, $_peryear, $_numpay, $_payment, $_years, $_annual_rate, $_total_repaid, $_calculated;
+	private $_prin, $_rate, $_balloon=0, $_peryear, $_numpay, $_payment, $_years, $_annual_rate, $_total_repaid, $_calculated, $_err;
 	function __construct($prin, $rate, $balloon, $peryear, $numpay, $payamt){
 		$this->_prin = $this->n($prin);
 		$this->_rate = $this->n($rate);
@@ -8,16 +8,29 @@ class Amort {
 		$this->_peryear = $this->n($peryear);
 		$this->_numpay = $this->n($numpay);
 		$this->_payment=  $this->n($payamt) ;
-		$this->_years = $this->n(($this->_numpay + (empty($balloon)?0:1)) / $this->_peryear);
-		
-		if (empty($this->_rate)){
-			$this->_calculated = "rate";
-			$this->_calcRate();
-		} else if (empty($_payment)){
-			$this->_calculated = "payment";
-			$this->_calcPayment();
+		if ($this->_peryear > 0) $this->_years = $this->n(($this->_numpay + (empty($balloon)?0:1)) / $this->_peryear);
+		if ($this->_rate > 0 || $this->_payment > 0) {
+			if (empty($this->_rate)){
+				$this->_calculated = "rate";
+				$this->_calcRate();
+			} else if (empty($_payment)){
+				$this->_calculated = "payment";
+				$this->_calcPayment();
+			}
+			$this->_total_repaid=  round((($this->_payment* $this->_numpay) + $this->_balloon ), 2, PHP_ROUND_HALF_UP);
+		} else {
+			$this->_err = __("Invalid Input", 'ti');
 		}
-		$this->_total_repaid=  round((($this->_payment* $this->_numpay) + $this->_balloon ), 2, PHP_ROUND_HALF_UP);
+	}
+	
+	function validates(){
+		if ($this->_err) return $this->_err;
+		if (!($this->_prin > 0)) return __("Principle must be greater than zero", 'ti');
+		if (!($this->_rate > 0) && !($this->_rate < 100)) return __("Invalid Annual Interest Rate", 'ti');
+		if (!($this->_peryear > 0)) return __("Payments Per Year must be greater than zero", 'ti');
+		if (!($this->_numpay > 0)) return __("Number of Regular Payments must be greater than zero", 'ti');
+		if (!($this->_payment > 0)) return __("Payment must be greater than zero", 'ti');
+		return true;
 	}
 	
 	
@@ -37,8 +50,8 @@ class Amort {
 	}
 	
 	function _calcPayment(){
-		$this->_payment= ($this->_prin - ($this->_balloon/((1+(($this->_rate/100)/$this->_peryear))**$this->_numpay)) )* (($this->_rate/100)/$this->_peryear)/ (1 - (1+(($this->_rate/100)/$this->_peryear))**-$this->_numpay);
-		$this->_payment = $this->truncate(round($this->_payment, 2, PHP_ROUND_HALF_UP),2);
+		if ($this->_peryear > 0 && $this->_numpay > 0) $this->_payment= ($this->_prin - ($this->_balloon/((1+(($this->_rate/100)/$this->_peryear))**$this->_numpay)) )* (($this->_rate/100)/$this->_peryear)/ (1 - (1+(($this->_rate/100)/$this->_peryear))**-$this->_numpay);
+		if ($this->_peryear > 0 && $this->_numpay > 0) $this->_payment = $this->truncate(round($this->_payment, 2, PHP_ROUND_HALF_UP),2);
 	}
 	
 	function truncate($val, $f="0")	{

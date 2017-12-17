@@ -30,7 +30,7 @@ Class AmortizationCalc {
 					$this->_val('int', $_POST['shortcode_num_payments_year']),
 					$this->_val('int', $_POST['shortcode_num_reg_payments']),
 					$this->_val('float', $_POST['shortcode_payment_amount']));
-			
+			if ($err = $a->validates() === true){
 				$data['shortcode_principle'] =$a->get('principle');
 				$data['shortcode_rate'] = (empty($_POST['shortcode_rate'])?"":$a->get('rate'));
 				$data['shortcode_balloon'] = $a->get('balloon');
@@ -38,6 +38,13 @@ Class AmortizationCalc {
 				$data['shortcode_num_reg_payments'] = $a->get("numpay");
 				$data['shortcode_payment_amount'] = (empty($_POST['shortcode_payment_amount'])?"":$a->get("payment"));
 				$data['a']=$a;
+			} else {
+				$data['message'] = $a->validates();
+				$data['shortcode_principle'] = $this->_val('float', $_POST['shortcode_principle']);
+				$data['shortcode_balloon'] = $this->_val('float', $_POST['shortcode_balloon']);
+				$data['shortcode_num_payments_year'] = $this->_val('int', $_POST['shortcode_num_payments_year']);
+				$data['shortcode_num_reg_payments'] = $this->_val('int', $_POST['shortcode_num_reg_payments']);
+			}
 			}
 		} else {
 			//defaults
@@ -67,7 +74,8 @@ Class AmortizationCalc {
 	
 	private function _val($type, $val){
 		//add an extra layer of validation before passing into calculator class
-		$val = sanitize_text_field($val);
+		$val = preg_replace('~\D~', '', sanitize_text_field($val));
+		var_export($val);
 		switch ($type){
 			case "float":
 				return floatval(str_replace([',','$'], ['',''], $val));
