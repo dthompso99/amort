@@ -1,6 +1,6 @@
 <form method="post" name="shortcode_amort_calc" id="shortcode_amort_calc" >
 	<table>
-	<tr><td colspan="3"><?php echo (isset($data['message'])?$data['message']:""); ?></td></tr>
+	<tr><td colspan="3" class="amort_message"><?php echo (isset($data['message'])?$data['message']:""); ?></td></tr>
 		<tr>
 			<td><label for="shortcode_principle"><?php echo __("Principal", 'ti'); ?></label><input type="text" name="shortcode_principle" id="shortcode_principle" value="<?php echo (isset($data['shortcode_principle'])?$data['shortcode_principle']:""); ?>" pattern="^\$?(([1-9](\d*|\d{0,2}(,\d{3})*))|0)(\.\d{1,2})?$"></td>
 			<td><label for="shortcode_rate"><?php echo __("Annual Interest Rate", 'ti'); ?></label><input type="text" name="shortcode_rate" value="<?php echo (isset($data['shortcode_rate'])?$data['shortcode_rate']:""); ?>" step="0.001" min="0.001" max="99.999" type="number"></td>

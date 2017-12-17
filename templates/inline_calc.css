@@ -1,3 +1,7 @@
 #shortcode_amort_calc label {
 	display: block;
 }
+.amort_message {
+	color: #ff0000;
+	font-weight: bold;
+}

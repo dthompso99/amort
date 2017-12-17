@@ -67,6 +67,7 @@ Class AmortizationCalc {
 	
 	private function _val($type, $val){
 		//add an extra layer of validation before passing into calculator class
+		$val = sanitize_text_field($val);
 		switch ($type){
 			case "float":
 				return floatval(str_replace([',','$'], ['',''], $val));
